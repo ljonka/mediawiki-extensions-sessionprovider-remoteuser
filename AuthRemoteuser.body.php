@@ -122,10 +122,12 @@ class AuthRemoteuser extends MediaWiki\Session\CookieSessionProvider {
 			] );
 			$userInfo = UserInfo::newFromName( $this->getRemoteUsername() );
 			$info['userInfo'] = $userInfo->verified();
+			$this->initUser( $userInfo->getUser() );
 		} else {
 			// No session ID and no user is the same as an empty session, so
 			$userInfo = UserInfo::newFromName( $this->getRemoteUsername() );
 			$info['userInfo'] = $userInfo->verified();
+			$this->initUser( $userInfo->getUser() );
 			// there's no point.
 			//return null;
 		}
@@ -156,7 +158,7 @@ class AuthRemoteuser extends MediaWiki\Session\CookieSessionProvider {
             throw new \InvalidArgumentException('Invalid user name');
         }
 
-        $this->initUser($user, $username);
+        $this->initUser($user);
 
         $info = new SessionInfo(SessionInfo::MAX_PRIORITY, [
             'provider' => $this,
@@ -176,69 +178,55 @@ class AuthRemoteuser extends MediaWiki\Session\CookieSessionProvider {
      * email address or real name from the external user database.
      *
      * @param $user User object.
-     * @param $autocreate bool
      */
-    protected function initUser(&$user, $username)
-    {
-        if (Hooks::run("AuthRemoteUserInitUser",
-            array($user, true))
-        ) {
-            $this->setRealName($user);
+    protected function initUser( User $user ) {
 
-            $this->setEmail($user);
+		$this->setRealName( $user );
 
-			$this->setGroups($user);
+		$this->setEmail( $user );
 
-            $user->mEmailAuthenticated = wfTimestampNow();
-            $user->setToken();
+		$this->setGroups( $user );
 
-            $this->setNotifications($user);
-        }
+		$user->mEmailAuthenticated = wfTimestampNow();
+		$user->setToken();
 
-        $user->saveSettings();
-    }
+		$this->setNotifications( $user );
 
-    /**
-     * Sets the real name of the user.
-     *
-     * @param User
-     */
-    protected function setRealName(User $user)
-    {
-        $wgAuthRemoteuserName = isset( $_SERVER["HTTP_AD_DISPLAYNAME"] )
-            ? $_SERVER["HTTP_AD_DISPLAYNAME"]
-            : '';
-        if ($wgAuthRemoteuserName) {
-            $user->setRealName($wgAuthRemoteuserName);
-        } else {
-            $user->setRealName('');
-        }
-    }
+		$user->saveSettings();
+	}
 
-    /**
-     * Return the username to be used.  Empty string if none.
-     *
-     * @return string
-     */
-    protected function getRemoteUsername()
-    {
-        global $wgAuthRemoteuserDomain;
+	/**
+	 * Sets the real name of the user.
+	 *
+	 * @param User
+	 */
+	protected function setRealName( User $user ) {
+		$wgAuthRemoteuserName = isset( $_SERVER[ "HTTP_AD_DISPLAYNAME" ] ) ? $_SERVER[ "HTTP_AD_DISPLAYNAME" ] : '';
 
-        if (isset($_SERVER['HTTP_AUTH_USER'])) {
-            $username = $_SERVER['HTTP_AUTH_USER'];
+		$user->setRealName( $wgAuthRemoteuserName );
+	}
 
-            if ($wgAuthRemoteuserDomain) {
-                $username = str_replace("$wgAuthRemoteuserDomain\\",
-                    "", $username);
-                $username = str_replace("@$wgAuthRemoteuserDomain",
-                    "", $username);
-            }
-        } else {
-            $username = "";
-        }
+	/**
+	 * Return the username to be used.  Empty string if none.
+	 *
+	 * @return string
+	 */
+	protected function getRemoteUsername() {
+		global $wgAuthRemoteuserDomain;
 
-        return $username;
-    }
+		if ( isset( $_SERVER[ 'HTTP_AUTH_USER' ] ) ) {
+			$username = $_SERVER[ 'HTTP_AUTH_USER' ];
+
+			if ( $wgAuthRemoteuserDomain ) {
+				$username = str_replace( "$wgAuthRemoteuserDomain\\", "", $username );
+				$username = str_replace( "@$wgAuthRemoteuserDomain", "", $username );
+			}
+		} else {
+			$username = "";
+		}
+
+		return $username;
+	}
 
 	/**
 	 *
