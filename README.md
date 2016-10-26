@@ -52,6 +52,7 @@ The original version of this fork can be found on the [MediaWiki extension site]
 	Copyright 2014 Mark A. Hershberger
 	Copyright 2015 Jonas Gröger
 	Copyright 2016 Andreas Fink
+	Copyright 2016 Leonid Verhovskij
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
