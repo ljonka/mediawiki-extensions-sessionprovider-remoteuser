@@ -1,11 +1,11 @@
 <?php
 
-$wgAuthRemoteuserName = isset( $_SERVER["AUTHENTICATE_CN"] )
-    ? $_SERVER["AUTHENTICATE_CN"]
+$wgAuthRemoteuserName = isset( $_SERVER["HTTP_AD_DISPLAYNAME"] )
+    ? $_SERVER["HTTP_AD_DISPLAYNAME"]
     : '';
 
 /* User's Mail */
-$wgAuthRemoteuserMail = isset( $_SERVER["AUTHENTICATE_MAIL"] )
-    ? $_SERVER["AUTHENTICATE_MAIL"]
+$wgAuthRemoteuserMail = isset( $_SERVER["HTTP_AD_MAIL"] )
+    ? $_SERVER["HTTP_AD_MAIL"]
     : '';
 
